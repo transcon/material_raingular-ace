@@ -1,3 +1,6 @@
+# //= require ace/theme-monokai
+# //= require ace/mode-ruby
+# In order to have digested assets function properly, theme and mode must be required up front
 angular.module('materialRaingularAce', [])
   .directive 'codeEditor', ($timeout)->
     restrict: 'E'
@@ -6,7 +9,6 @@ angular.module('materialRaingularAce', [])
     template: (element,attributes) ->
       '<span><div id="process-code-editor"></div><input type="hidden" ng-update="' + attributes.ngModel + '"</span>'
     link: (scope, element, attributes, modelCtrl)->
-      ace.config.set("basePath","/assets/ace")
       editor = ace.edit("process-code-editor")
       editor.setTheme("ace/theme/monokai")
       editor.getSession().setMode("ace/mode/ruby")
