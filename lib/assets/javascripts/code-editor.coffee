@@ -2,12 +2,14 @@
 # //= require ace/mode-ruby
 # In order to have digested assets function properly, theme and mode must be required up front
 angular.module('materialRaingularAce', [])
-  .directive 'codeEditor', ($timeout)->
+  .directive 'codeEditor', ($timeout, factoryName, $injector)->
     restrict: 'E'
     replace: true
     require: 'ngModel'
     template: (element,attributes) ->
-      '<span><div id="process-code-editor"></div><input type="hidden" ng-update="' + attributes.ngModel + '"</span>'
+      websocketHelper = ->
+        if typeof attributes.webSocket == 'undefined' then 'update' else 'model'
+      '<span><div id="process-code-editor"></div><input type="hidden" ng-' + websocketHelper + '="' + attributes.ngModel + '"</span>'
     link: (scope, element, attributes, modelCtrl)->
       editor = ace.edit("process-code-editor")
       editor.setTheme("ace/theme/monokai")
@@ -42,9 +44,23 @@ angular.module('materialRaingularAce', [])
                 offset += text.length
           else
             editor.setValue(modelCtrl.$modelValue,-1)
+      updateFunc = ->
+        modelCtrl.$setViewValue(editor.getValue())
+        unless typeof attributes.webSocket != 'undefined'
+          scope.$apply(element.find('input')[0].attributes['ng-change'].value)
+          console.dir 'hello'
+        else
+          parent      = attributes.ngModel.split('.')
+          modelName   = parent.pop()
+          parent_name = parent.join('.')
+          parent      = scope.$eval(parent_name)
+          list        = $injector.get(factoryName(parent_name))
+          params      = {id: parent.id, suppress: true}
+          params[parent_name] = {}
+          params[parent_name][modelName] = parent[modelName]
+          list.update params
       element.find('textarea').bind 'keyup', ->
         $timeout.cancel(scope.debounce)
         scope.debounce = $timeout ->
-          modelCtrl.$setViewValue(editor.getValue())
-          scope.$apply(element.find('input')[0].attributes['ng-change'].value)
+          updateFunc() unless editor.getValue() == modelCtrl.$viewValue
         ,750
