@@ -1,6 +1,32 @@
 # //= require ace/theme-monokai
 # //= require ace/mode-ruby
 # In order to have digested assets function properly, theme and mode must be required up front
+class EditorHeight
+  constructor: (scope,element,attributes)->
+    @scope      = scope
+    @element    = element
+    @attributes = attributes
+
+  minHeight: ->
+    heights = []
+    e = @element[0].parentElement.parentElement
+    while e
+      heights.push(e.offsetHeight) unless e.offsetHeight == 0
+      e = e.parentElement
+
+  height: ->
+    return @minHeight() + 'px' unless @attributes.editorSize
+    raw_equation = @attributes.editorSize.replace /[\+\-\/\*]/g, (operator)->
+      return " " + operator + " "
+    equation = []
+    for el in raw_equation.split(/\s+/)
+      unless el.match(/(^[\d+]?[.]?[\d+]$)|[\+\-\/\*]/)
+        method = 'getElement' + if el[0] == "#" then 'ById' else 'sByClass'
+        equation.push document[method](el[1..-1]).offsetHeight
+      else
+        equation.push(el)
+    return @scope.$eval(equation.join(' ')) + 'px'
+
 angular.module('materialRaingularAce', [])
   .directive 'codeEditor', ($timeout, factoryName, $injector)->
     restrict: 'E'
@@ -9,23 +35,24 @@ angular.module('materialRaingularAce', [])
     template: (element,attributes) ->
       websocketHelper = ->
         if typeof attributes.webSocket == 'undefined' then 'update' else 'model'
-      '<span><div id="process-code-editor"></div><input type="hidden" ng-' + websocketHelper + '="' + attributes.ngModel + '"</span>'
+      id = attributes['editorId'] || attributes.ngModel.replace('.','-') + "-code-editor"
+      '<span><div id="' + id + '"></div><input type="hidden" ng-' + websocketHelper + '="' + attributes.ngModel + '"</span>'
     link: (scope, element, attributes, modelCtrl)->
-      editor = ace.edit("process-code-editor")
+      id = attributes['editorId'] || attributes.ngModel.replace('.','-') + "-code-editor"
+      angular.ace = {} unless angular.ace
+      editor = ace.edit(id)
       editor.setTheme("ace/theme/monokai")
       editor.getSession().setMode("ace/mode/ruby")
       editor.getSession().setTabSize(2)
       editor.getSession().setUseSoftTabs(true)
       editor.$blockScrolling = Infinity
-      span = angular.element(document.getElementById('process-code-editor'))
-      heights = []
-      e = element[0].parentElement.parentElement
-      while e
-        heights.push(e.offsetHeight) unless e.offsetHeight == 0
-        e = e.parentElement
+      angular.ace[id] = editor
+      span = angular.element(document.getElementById(id))
+      editorHeight = new EditorHeight(scope,element,attributes)
       angular.element(window).on 'resize', (event)->
-        span.css('height',heights.min() + 'px')
-      span.css('fontSize', '14px').css('height',heights.min() + 'px')
+        span.css('height',editorHeight.height())
+        editor.resize()
+      span.css('fontSize', '14px').css('height',editorHeight.height())
       scope.$watch attributes.ngModel, (newVal, oldVal) ->
         unless newVal == editor.getValue()
           if newVal && oldVal
