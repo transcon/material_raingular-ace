@@ -56,6 +56,7 @@ angular.module('materialRaingularAce', [])
         span.css('height',editorHeight.height())
         editor.resize()
       span.css('fontSize', '14px').css('height',editorHeight.height())
+      editor.setValue(scope.$eval(attributes.ngModel),-1) unless typeof scope.$eval(attributes.ngModel) == 'undefined'
       scope.$watch attributes.ngModel, (newVal, oldVal) ->
         unless newVal == editor.getValue()
           if newVal && oldVal
@@ -78,7 +79,6 @@ angular.module('materialRaingularAce', [])
         modelCtrl.$setViewValue(editor.getValue())
         unless typeof attributes.webSocket != 'undefined'
           scope.$apply(element.find('input')[0].attributes['ng-change'].value)
-          console.dir 'hello'
         else
           parent      = attributes.ngModel.split('.')
           modelName   = parent.pop()
