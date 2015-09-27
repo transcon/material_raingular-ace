@@ -1,5 +1,6 @@
 # //= require ace/theme-monokai
 # //= require ace/mode-ruby
+# //= require ace/mode-coffee
 # In order to have digested assets function properly, theme and mode must be required up front
 class EditorHeight
   constructor: (scope,element,attributes)->
@@ -41,8 +42,10 @@ angular.module('materialRaingularAce', [])
       id = attributes['editorId'] || attributes.ngModel.replace('.','-') + "-code-editor"
       angular.ace = {} unless angular.ace
       editor = ace.edit(id)
+      mode = attributes.codeType || 'ruby'
+      editor.getSession().setUseWorker(false)
       editor.setTheme("ace/theme/monokai")
-      editor.getSession().setMode("ace/mode/ruby")
+      editor.getSession().setMode("ace/mode/" + mode)
       editor.getSession().setTabSize(2)
       editor.getSession().setUseSoftTabs(true)
       editor.$blockScrolling = Infinity
