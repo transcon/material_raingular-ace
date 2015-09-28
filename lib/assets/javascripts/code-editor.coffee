@@ -36,10 +36,14 @@ angular.module('materialRaingularAce', [])
     template: (element,attributes) ->
       websocketHelper = ->
         if typeof attributes.webSocket == 'undefined' then 'update' else 'model'
-      id = attributes['editorId'] || attributes.ngModel.replace('.','-') + "-code-editor"
-      '<span><div id="' + id + '"></div><input type="hidden" ng-' + websocketHelper + '="' + attributes.ngModel + '"</span>'
+      '<span><div></div><input type="hidden" ng-' + websocketHelper + '="' + attributes.ngModel + '"</span>'
     link: (scope, element, attributes, modelCtrl)->
-      id = attributes['editorId'] || attributes.ngModel.replace('.','-') + "-code-editor"
+      exitStatus = true
+      while exitStatus
+        uniqueId   = Math.floor(Math.random()*(1000000))
+        exitStatus = !!document.getElementById(uniqueId)
+      id = attributes.ngModel.replace('.','-') + "-code-editor-" + uniqueId
+      element[0].getElementsByTagName('div')[0].setAttribute('id',id)
       angular.ace = {} unless angular.ace
       editor = ace.edit(id)
       mode = attributes.codeType || 'ruby'
