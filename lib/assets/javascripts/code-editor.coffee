@@ -1,6 +1,8 @@
 # //= require ace/theme-monokai
 # //= require ace/mode-ruby
 # //= require ace/mode-coffee
+# //= require ace/mode-sass
+# //= require ace/mode-less
 # In order to have digested assets function properly, theme and mode must be required up front
 class EditorHeight
   constructor: (scope,element,attributes)->
