@@ -1,9 +1,30 @@
-# //= require ace/theme-monokai
+# //= require ace/theme-ambiance.js
+# //= require ace/theme-crimson_editor.js
+# //= require ace/theme-github.js
+# //= require ace/theme-iplastic.js
+# //= require ace/theme-kuroir.js
+# //= require ace/theme-monokai.js
+# //= require ace/theme-solarized_light.js
+# //= require ace/theme-textmate.js
+# //= require ace/theme-twilight.js
+# //= require ace/theme-vibrant_ink.js
+
 # //= require ace/mode-ruby
 # //= require ace/mode-coffee
 # //= require ace/mode-sass
 # //= require ace/mode-less
 # In order to have digested assets function properly, theme and mode must be required up front
+editor_theme = "ambiance"
+# editor_theme = "crimson_editor"
+# editor_theme = "github"
+# editor_theme = "iplastic"
+# editor_theme = "kuroir"
+# editor_theme = "monokai"
+# editor_theme = "solarized_light"
+# editor_theme = "textmate"
+# editor_theme = "twilight"
+# editor_theme = "vibrant_ink"
+
 class EditorHeight
   constructor: (scope,element,attributes)->
     @scope      = scope
@@ -50,7 +71,7 @@ angular.module('materialRaingularAce', [])
       editor = ace.edit(id)
       mode = attributes.codeType || 'ruby'
       editor.getSession().setUseWorker(false)
-      editor.setTheme("ace/theme/monokai")
+      editor.setTheme("ace/theme/" + editor_theme)
       editor.getSession().setMode("ace/mode/" + mode)
       editor.getSession().setTabSize(2)
       editor.getSession().setUseSoftTabs(true)
